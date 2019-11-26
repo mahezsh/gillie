@@ -34,10 +34,6 @@ if(isset($_POST['update']) && $_POST['update']!="")
         $start = $_POST['searchDateStart'];
         $end = $_POST['searchDateEnd'];
 
-
-       // $SQLstring = "SELECT photo_title, description, date_of_photo, keywords, reference FROM photos";
-
-
         $or_where = [];
         if(!empty($title)){
             $or_where [] =" photo_title  = '" . $title . "'";
