@@ -17,4 +17,4 @@ v2
 * Load Balancer
 * cached distribution from CloudFront
 
-![alt text](https://github.com/matrixnl/gillie/blob/master/aws%20architecture%20diagram%20v1.png)
+![alt text](https://github.com/matrixnl/gillie/blob/master/aws%20architecture%20diagram%20v2.png)
