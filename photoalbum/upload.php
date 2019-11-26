@@ -29,12 +29,17 @@
 require dirname(__FILE__) . '/../aws/aws-autoloader.php';
 
 use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
 use Aws\S3\MultipartUploader;
-use Aws\Common\Exception\S3Exception;
+use Aws\Exception\MultipartUploadException;
+use Aws\S3\Model\MultipartUpload\UploadBuilder;
 
 $s3_client = new S3Client([
     'version' => 'latest',
     'region' => 'ap-southeast-2']);
+
+    $bucket = "s3gilliebucket";
+    $key = $_FILES["photoUpload"]["name"];
 
 if (isset($_POST['submit'])) {
     $uploadDir = '/var/www/html/gillie/uploads/';
@@ -46,7 +51,7 @@ if (isset($_POST['submit'])) {
         $uploader = new MultipartUploader(
             $s3_client,
             dirname(__FILE__) . '/uploads/' . basename($_FILES['photoUploadField']['name']),
-            ['bucket' => 'photostore23', 'key' => basename($_FILES['photoUploadField']['name'])]);
+            ['bucket' => 'gillie-bucket', 'key' => basename($_FILES['photoUploadField']['name'])]);
         try {
             $result = $uploader->upload();
         } catch (S3Exception $e) {
@@ -56,25 +61,20 @@ if (isset($_POST['submit'])) {
     $DBConnect = @mysqli_connect("gillie-db.c1x7jt5kkcd5.ap-southeast-2.rds.amazonaws.com", "master","master123", "gilliedb")
     Or die ("<p>Unable to connect to the database server.</p>" . "<p>Error code " . mysqli_connect_errno() . ": " . mysqli_connect_error()) . "</p>";
 
-    //Insert data in the keywords table
-    $keywords = array_map('trim', explode(';', $_POST['photoKeywordsField']));
-    $SQLstring = "INSERT INTO keywords (photo_type,image_file_format,image_orientation,color)
-         VALUES ('" . $keywords[0] . "','" . $keywords[1] . "','" . $keywords[2] . "','" . $keywords[3] . "')";
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+      $date = $_POST['date'];
+      $keyword = $_POST['keywords'];
+      $url = "http://d3fdfky3hoojcv.cloudfront.net/" . $key;
+
+    $SQLstring = "INSERT INTO photos (photo_title,description,date_of_photo,keywords,reference)
+         VALUES ('" . $title . "','" . $description . "','" . $date . "','" . $keyword . "','" . $url . "')";
+
 
     $queryResult = @mysqli_query($DBConnect, $SQLstring)
-    Or die ("<p>Unable to insert data in the keywords table.</p>" . "<p>Error code " . mysqli_errno($DBConnect) . ": " . mysqli_error($DBConnect)) . "</p>";
+      Or die ("<p>Unable to query the photos table.</p>" . "<p>Error code " . mysqli_errno($DBConnect) . ": " . mysqli_error($DBConnect)) . "</p>";
 
-    //Insert data in the photos table
-    $photoReference = basename($_FILES['photoUploadField']['name']);
-    $keyWordID = mysqli_insert_id($DBConnect);
-    $SQLstring = "INSERT INTO photos (title,description,date_of_photo,reference, keyword_id)
-         VALUES ('" . $_POST['photoTitleField'] . "','" . $_POST['photoDescriptionField'] . "','" . $_POST['photoDateField'] . "','" . $photoReference . "', '" . $keyWordID . "')";
-
-    $queryResult = @mysqli_query($DBConnect, $SQLstring)
-    Or die ("<p>Unable to insert data in the photos table.</p>" . "<p>Error code " . mysqli_errno($DBConnect) . ": " . mysqli_error($DBConnect)) . "</p>";
-
-    echo "<p style='color: green'>Photo has been added in the Album.</p>";
-
+    echo "<p style='color: green'>Added Successfully.</p>";
 
     mysqli_close($DBConnect);
 
